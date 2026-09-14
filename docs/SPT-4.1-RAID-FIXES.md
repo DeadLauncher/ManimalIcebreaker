@@ -199,7 +199,10 @@ is resolved. No Fika addon code was changed.
 Peaceful Atom and Wiring the Vessel are ported from the retail 1.1.5 quest list
 under `db/CustomQuests/peacekeeper`, with new mod ids like the other retail ports.
 Peaceful Atom follows Oil Change and hands in the nuclear power unit control log
-(a WTT-ContentBackport quest item that already spawns in the ship's loose loot).
+(a WTT-ContentBackport quest item). The log was a 75% entry in the sampled loot
+pool, which SPT's spawn budget can skip; it is now the forced spawn
+`iceforced_npu_log` at probability 1, placed at one of the three retail group
+positions per raid by the loose-loot randomiser.
 Wiring the Vessel follows Peaceful Atom, mails the LAN hacking device on accept,
 and unlocks the retail SICC barter at Peacekeeper LL1 on completion.
 
@@ -226,3 +229,17 @@ refuse without a toolkit, animate and sound through the repair, and tick their
 objective; a repaired panel stays lit on re-entry; the device plants on the CPU
 console; Chinese locale strings for both quests display (peacekeeper `ch.json` is
 new). Fika peers do not yet see another player's repair.
+
+### Knight spawn and the goon rotation (September 14)
+
+The knight is the `bossKnight` row at `BotZoneMash_t1`, fired by the retail `T1`
+bot-event trigger boxes on the forward deck. SPT's `GoonLocationSpawnService`
+zeroes every `bossKnight` row on every map at post-DB-load and again each
+`rotationIntervalHours` (3 h) from the server update loop, then re-enables one map
+from its own pool. The mod restored the Icebreaker row at loot generation, but
+`StartLocalRaid` clones the location before loot generates, so that restore only
+ever fixed the database for the following raid: the first Icebreaker raid after a
+server start, and any raid after a rotation, was served a zero-chance knight.
+`IcebreakerLootFirewall.GoonRotationPatch` now restores the row immediately after
+each `AdjustGoonMapSpawns`, and the server log carries an Information line at
+raid start with the chance the client's clone received.
