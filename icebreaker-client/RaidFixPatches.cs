@@ -1407,6 +1407,9 @@ namespace Manimal.Icebreaker
             // two: the sound scene is live by now and the sooner the loops start the less
             // of the raid opens in silence
             IcebreakerAmbientAudio.TryRestore(); yield return null;
+            IcebreakerDoorBlizzardAudio.Restore(); yield return null;
+            // Wiring the Vessel breaker panels: retail trigger graph rebuilt on the ripped switches
+            IcebreakerPanelRepair.Restore(); yield return null;
             FreeHovercraftLights(); yield return null;
             DiscoverLamps(); yield return null;
             ApplyLamps(); yield return null;
