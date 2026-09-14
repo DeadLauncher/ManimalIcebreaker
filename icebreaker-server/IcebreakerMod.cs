@@ -132,9 +132,9 @@ public class IcebreakerMod(
     {
         ["ru"] = new[]
         {
-            ("5714dc342459777137212e0b Name", "Ледокол"),
-            ("Suburbs", "Ледокол"),
-            ("5714dc342459777137212e0b Description", IcebreakerBlurbRu),
+            (IcebreakerLocation.Id + " Name", "Ледокол"),
+            (IcebreakerLocation.Key, "Ледокол"),
+            (IcebreakerLocation.Id + " Description", IcebreakerBlurbRu),
             ("Icebreaker_Exit_Heli", "Вертолёт"),
 
             ("icebreaker_cover Name", "Ледокол"),
@@ -161,6 +161,21 @@ public class IcebreakerMod(
             ("Icebreaker_UI_Heli_Inbound", "Сигнал принят — вертолёт летит, удерживайте площадку"),
             ("Icebreaker_UI_Heli_Landed", "Вертолёт приземлился — эвакуация доступна"),
             ("Icebreaker_UI_Fare_NotEnough", "Контрабандисты просят {0:N0} руб. за переправу (у вас {1:N0})"),
+        },
+        // from the Chinese translation PR (#10); its file-side copies of these keys
+        // were overwritten by the transformer above, so they live here instead
+        ["ch"] = new[]
+        {
+            (IcebreakerLocation.Id + " Name", "破冰船"),
+            (IcebreakerLocation.Key, "破冰船"),
+            (IcebreakerLocation.Id + " Description", "在芬兰湾里，隶属于物流公司 Paradigm Shipping 的核动力破冰船“北风之神”号深陷诺文斯克的封锁当中。“北风之神”号的确切用途及其运载的货物仍然未知。Paradigm Shipping 和 TerraGroup 做了特别努力，尽量让媒体对这艘破冰船避而不谈，并对其航线和任务严格保密。"),
+            ("Icebreaker_Exit_Heli", "直升机"),
+            ("icebreaker_cover Name", "破冰船"),
+            ("icebreaker_cover Description", "在芬兰湾里，隶属于物流公司 Paradigm Shipping 的核动力破冰船“北风之神”号深陷诺文斯克的封锁当中。“北风之神”号的确切用途及其运载的货物仍然未知。Paradigm Shipping 和 TerraGroup 做了特别努力，尽量让媒体对这艘破冰船避而不谈，并对其航线和任务严格保密。"),
+            ("blackdiv_banner Name", "黑色军团"),
+            ("blackdiv_banner Description", "时不时地，塔科夫就会流传关于一个既不属于 USEC 也不属于 BEAR 的秘密部队的传言。坊间传闻，这些特殊行动人员会在夜间行动，肃清相关区域，回收宝贵的 TerraGroup 数据。但在 PMC 行动人员中，几乎没有人相信这个所谓的“Black Division”真的存在，因为在当前形势下，让成建制的整支作战小组自由出入封锁区根本不可能。\n……吗？"),
+            ("wedge_banner Name", "“Wedge”特别行动队"),
+            ("wedge_banner Description", "来自少数仍在塔科夫活动的PMC的情报和特殊渠道的监控记录显示，有多架武装直升机正在向芬兰湾移动。我们截获的无线电片段提到了一个代号——“Wedge”。其成员来自世界各地——比如 前SAS 和前摩萨德。Wedge同时也是其指挥官的呼号，他是 Black Division 的精英行动人员，负责在“北风之神”号上的秘密行动，以及对一切可能的无关知情人员的“清理”工作。"),
         },
     };
 
