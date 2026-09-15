@@ -36,8 +36,6 @@ namespace Manimal.Icebreaker
     [BepInDependency("me.sol.sain", "4.5.1")]
     [BepInDependency("com.tarkin.ladders", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("com.manimal.csgas", "2.0.0")]
-    // Boreas Part 6 smuggler kills use the retail Interchange quest zone
-    [BepInDependency("com.manimal.interchange", "1.0.0")]
     [BepInDependency("com.arys.unitytoolkit")]
     //
     // SOFT: integrated with when present, silently skipped when not. none are required.
