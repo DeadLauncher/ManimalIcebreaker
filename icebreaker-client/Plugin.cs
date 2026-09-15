@@ -35,8 +35,6 @@ namespace Manimal.Icebreaker
     [BepInDependency("me.sol.sain", "4.5.1")]
     [BepInDependency("com.tarkin.ladders", BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("com.manimal.csgas", "2.0.0")]
-    // Boreas Part 6 smuggler kills use the retail Interchange quest zone
-    [BepInDependency("com.manimal.interchange", "1.0.0")]
     [BepInDependency("com.arys.unitytoolkit")]
     //
     // SOFT: integrated with when present, silently skipped when not. none are required.
@@ -167,10 +165,18 @@ namespace Manimal.Icebreaker
             {
                 case "BotZoneEngineCenter": return 1.0f;
                 case "BotZoneEngineHide": return 0.5f;
-                case "BotZoneRooms": case "BotZoneFront": case "BotZoneInside_t4":
-                case "BotZoneRoomsThirdKitchen": case "BotZoneMash_t1": case "BotZoneRoomsFour":
-                case "BotZoneKitchen": case "BotZoneKorrDown1": case "BotZoneKorr_t2":
-                case "BotZoneFront2": case "BotZoneRoomsThird": case "BotZoneRoom_Eng":
+                case "BotZoneRooms":
+                case "BotZoneFront":
+                case "BotZoneInside_t4":
+                case "BotZoneRoomsThirdKitchen":
+                case "BotZoneMash_t1":
+                case "BotZoneRoomsFour":
+                case "BotZoneKitchen":
+                case "BotZoneKorrDown1":
+                case "BotZoneKorr_t2":
+                case "BotZoneFront2":
+                case "BotZoneRoomsThird":
+                case "BotZoneRoom_Eng":
                 case "BotZoneRoom_Eng2": return 0.25f;
                 default: return 1f;
             }
@@ -396,7 +402,8 @@ namespace Manimal.Icebreaker
                         // working normally on every other map.
                         IcebreakerLockableDoorsOff.TryPatch(new HarmonyLib.Harmony("com.manimal.icebreaker.lockabledoors"));
                     }
-                } catch { }
+                }
+                catch { }
             };
 
             // preload the self-hosted Perfect Culling runtime so the icebreaker scene
