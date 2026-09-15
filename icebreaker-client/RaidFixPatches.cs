@@ -1042,8 +1042,8 @@ namespace Manimal.Icebreaker
             // statue bots fail with zero log output — this makes them talk.
             if (Input.GetKeyDown(KeyCode.F1))
             {
-                var bots = UnityEngine.Object.FindObjectsOfType<BotOwner>();
-                Plugin.Log.LogDebug($"[BotAutopsy] {bots.Length} BotOwner(s) alive:");
+                var bots = IcebreakerCrew.LiveBots();
+                Plugin.Log.LogDebug($"[BotAutopsy] {bots.Count} BotOwner(s) alive:");
                 foreach (var b in bots)
                 {
                     try

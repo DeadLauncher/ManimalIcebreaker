@@ -74,6 +74,9 @@ namespace Manimal.Icebreaker
         internal static ConfigEntry<float> DoorSoundBoost;
         internal static ConfigEntry<bool> AmbientBeds;
         internal static ConfigEntry<bool> DoorBlizzardSounds;
+        internal static ConfigEntry<Vector3> TorchFlameOffset;
+        internal static ConfigEntry<Vector3> TorchFlameRotation;
+        internal static ConfigEntry<float> TorchFlameScale;
         internal static ConfigEntry<float> WindIndoorFraction;
         internal static ConfigEntry<bool> WeatherSystem;
         internal static ConfigEntry<bool> ForceWinter;
@@ -264,6 +267,12 @@ namespace Manimal.Icebreaker
                 new ConfigDescription("resurrect BSG's spatial audio (room/portal occlusion) from the recovered retail bake — needs the acoustics sidecar next to the dll", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
             DoorBlizzardSounds = Config.Bind("Icebreaker", "DoorBlizzardSounds", true,
                 "Play the retail wind loops through open exterior doors and the opened frozen hatch (live).");
+            TorchFlameOffset = Config.Bind("Icebreaker", "TorchFlameOffset", new Vector3(0f, 0.01f, 0.19f),
+                new ConfigDescription("blowtorch flame position on the torch mesh, meters (live)", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+            TorchFlameRotation = Config.Bind("Icebreaker", "TorchFlameRotation", new Vector3(0f, 10f, 0f),
+                new ConfigDescription("blowtorch flame rotation on the torch mesh, euler degrees; the jet leaves along its local +Z (live)", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
+            TorchFlameScale = Config.Bind("Icebreaker", "TorchFlameScale", 2f,
+                new ConfigDescription("blowtorch flame size multiplier (live)", new AcceptableValueRange<float>(0.1f, 5f), new ConfigurationManagerAttributes { IsAdvanced = true }));
             LensFlares = Config.Bind("Icebreaker", "LensFlares", true,
                 new ConfigDescription("restore the ~1100 retail lens flares (lamp glow sprites). OFF is a perf A/B lever — over a thousand flare components have measurable render cost. needs a raid restart", null, new ConfigurationManagerAttributes { IsAdvanced = true }));
             // SsrQuality config RETIRED (user call 08-09): the clamp itself stays,

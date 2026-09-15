@@ -30,6 +30,7 @@ namespace Manimal.Icebreaker
 
         private void Start()
         {
+            _zoneCache = null;
             IcebreakerCutscene.ResetForRaid();
             IcebreakerChainDoor.ResetForRaid();
             IcebreakerFlares.ResetForRaid();
@@ -159,10 +160,37 @@ namespace Manimal.Icebreaker
         // unregister + ReturnToPool on the GO. no death, no ragdoll, no loot. trims the
         // max-spawned wave crew down to the raid's rolled size. farthest-from-player
         // first, and nobody within 60m — a rogue vanishing in view would look broken.
+        // registry walks, not scene scans: FindObjectsOfType<BotOwner> costs 70-80ms on this
+        // scene and C3KeycardSweep + UnstackPatrol paid it every tick for the first five
+        // minutes (issue #13 stutters). every caller filters to living bots anyway, and the
+        // game already keeps that list. zones never change mid-raid, so they are read once.
+        internal static List<BotOwner> LiveBots()
+        {
+            var list = new List<BotOwner>();
+            var players = Singleton<GameWorld>.Instance?.AllAlivePlayersList;
+            if (players == null) return list;
+            for (int i = 0; i < players.Count; i++)
+            {
+                var p = players[i];
+                if (p == null || !p.IsAI) continue;
+                var b = p.AIData?.BotOwner;
+                if (b != null) list.Add(b);
+            }
+            return list;
+        }
+
+        private static BotZone[] _zoneCache;
+        internal static BotZone[] AllBotZones()
+        {
+            if (_zoneCache == null || _zoneCache.Length == 0 || _zoneCache[0] == null)
+                _zoneCache = UnityEngine.Object.FindObjectsOfType<BotZone>();
+            return _zoneCache;
+        }
+
         private static List<BotOwner> AliveRogues()
         {
             var list = new List<BotOwner>();
-            foreach (var b in UnityEngine.Object.FindObjectsOfType<BotOwner>())
+            foreach (var b in LiveBots())
                 if (b != null && b.Profile?.Info?.Settings?.Role == WildSpawnType.exUsec
                     && b.GetPlayer != null && b.GetPlayer.HealthController != null
                     && b.GetPlayer.HealthController.IsAlive)
@@ -439,7 +467,7 @@ namespace Manimal.Icebreaker
                     links = UnityEngine.Object.FindObjectsOfType<NavMeshDoorLink>();
                     if (links.Length == 0) continue;
                 }
-                foreach (var b in UnityEngine.Object.FindObjectsOfType<BotOwner>())
+                foreach (var b in LiveBots())
                 {
                     if (b == null || b.GetPlayer == null || b.GetPlayer.HealthController == null
                         || !b.GetPlayer.HealthController.IsAlive) continue;
@@ -467,7 +495,7 @@ namespace Manimal.Icebreaker
         private IEnumerator SpawnSquad(string label, string[] zoneNames, int assaults, WildSpawnType? bossRole)
         {
             var byName = new HashSet<string>(zoneNames);
-            var zones = UnityEngine.Object.FindObjectsOfType<BotZone>()
+            var zones = AllBotZones()
                 .Where(z => byName.Contains(z.name) && z.SpawnPointMarkers != null && z.SpawnPointMarkers.Count > 0)
                 .ToList();
             if (zones.Count == 0)
@@ -512,7 +540,7 @@ namespace Manimal.Icebreaker
         private IEnumerator SpawnKnightDetail()
         {
             Plugin.Log.LogDebug("[Crew] T1 — the knight arrives (Mash_t1 + 2 rogue escorts)");
-            var zone = UnityEngine.Object.FindObjectsOfType<BotZone>()
+            var zone = AllBotZones()
                 .FirstOrDefault(z => z.name == "BotZoneMash_t1" && z.SpawnPointMarkers != null && z.SpawnPointMarkers.Count > 0);
             if (zone == null) { Plugin.Log.LogWarning("[Crew] no BotZoneMash_t1 — knight detail skipped"); yield break; }
             _squadSpawnBusy = true;
@@ -571,7 +599,7 @@ namespace Manimal.Icebreaker
             // is actually standing there rather than sweeping a fixed delay too early.
             // timeout leaves _chargePlaced false so a LATER qualifying squad still takes it.
             var anchors = new List<Vector3>();
-            foreach (var z in UnityEngine.Object.FindObjectsOfType<BotZone>())
+            foreach (var z in AllBotZones())
                 if (zoneNames.Contains(z.name) && z.SpawnPointMarkers != null)
                     foreach (var m in z.SpawnPointMarkers)
                         if (m != null) anchors.Add(m.transform.position);
@@ -582,7 +610,7 @@ namespace Manimal.Icebreaker
             while (Time.time < giveUp && !_chargePlaced)
             {
                 cands.Clear();
-                foreach (var b in UnityEngine.Object.FindObjectsOfType<BotOwner>())
+                foreach (var b in LiveBots())
                 {
                     if (b == null || b.Profile?.Info?.Settings?.Role != (WildSpawnType)BdIb || IsPenBot(b)) continue;
                     var p = b.GetPlayer;
@@ -638,7 +666,7 @@ namespace Manimal.Icebreaker
             float giveUp = Time.time + 90f; // he generates on the trigger frame; wait him out
             while (Time.time < giveUp && !_wedgeTagPlaced)
             {
-                foreach (var b in UnityEngine.Object.FindObjectsOfType<BotOwner>())
+                foreach (var b in LiveBots())
                 {
                     if (b == null || b.Profile?.Info?.Settings?.Role != (WildSpawnType)BdWedge) continue;
                     var p = b.GetPlayer;
@@ -702,7 +730,7 @@ namespace Manimal.Icebreaker
             float until = Time.time + 300f;
             while (Time.time < until)
             {
-                foreach (var b in UnityEngine.Object.FindObjectsOfType<BotOwner>())
+                foreach (var b in LiveBots())
                 {
                     if (b == null || b.Profile?.Info?.Settings?.Role != WildSpawnType.exUsec) continue;
                     var pid = b.Profile?.Id;
@@ -784,7 +812,7 @@ namespace Manimal.Icebreaker
             bounds = PadDown(bounds, 0f, 2.5f); // feet vs chest-height box — floor reach only, never up
             Plugin.Log.LogWarning($"[Crew] engine squad hold armed — release box {bounds.center} size {bounds.size} ({(trigCol != null ? "bundle trigger" : "glowstick fallback")})");
 
-            var hideZone = UnityEngine.Object.FindObjectsOfType<BotZone>()
+            var hideZone = AllBotZones()
                 .FirstOrDefault(z => z.name == "BotZoneEngineHide" && z.SpawnPointMarkers != null && z.SpawnPointMarkers.Count > 0);
             var anchor = hideZone != null ? hideZone.SpawnPointMarkers[0].transform.position : EngineLandmarkFallback;
 
@@ -807,7 +835,7 @@ namespace Manimal.Icebreaker
                 if (Time.time < nextHeavy) { if (held.Count > 0 && FikaBridge.AnyHumanIn(bounds)) break; yield return null; continue; }
                 nextHeavy = Time.time + 0.5f;
                 if (free.Count + held.Count < expected)
-                    foreach (var b in UnityEngine.Object.FindObjectsOfType<BotOwner>())
+                    foreach (var b in LiveBots())
                     {
                         if (free.Count + held.Count >= expected) break; // one sweep used to add 5/4
                         // IsPenBot: a pool bot in pen transit stands at its birth marker
@@ -981,7 +1009,7 @@ namespace Manimal.Icebreaker
         private List<BotZone> CollectRogueZones()
         {
             var byName = new HashSet<string>(RogueZones);
-            return UnityEngine.Object.FindObjectsOfType<BotZone>()
+            return AllBotZones()
                 .Where(z => byName.Contains(z.name) && z.SpawnPointMarkers != null && z.SpawnPointMarkers.Count > 0)
                 .ToList();
         }
@@ -989,7 +1017,7 @@ namespace Manimal.Icebreaker
         private int CountByRole(WildSpawnType role)
         {
             int n = 0;
-            foreach (var b in UnityEngine.Object.FindObjectsOfType<BotOwner>())
+            foreach (var b in LiveBots())
                 if (b != null && b.Profile?.Info?.Settings?.Role == role && b.GetPlayer != null
                     && b.GetPlayer.HealthController != null && b.GetPlayer.HealthController.IsAlive)
                     n++;
@@ -1082,7 +1110,7 @@ namespace Manimal.Icebreaker
             // markers with a living bot already on them are out — back-to-back squad
             // deliveries into the same zone (the two stern teams) reshuffled the same
             // marker set and teleported bots into each other (07-28 raid)
-            var living = UnityEngine.Object.FindObjectsOfType<BotOwner>();
+            var living = LiveBots();
             var free = pool.FindAll(p =>
             {
                 foreach (var b in living)
@@ -1309,7 +1337,7 @@ namespace Manimal.Icebreaker
             Add(2, (WildSpawnType)BdIb, WedgeZones[1]);
             Add(3, (WildSpawnType)BdIb, "BotZoneOutside_t3");  // T3 deployment
 
-            var zonesByName = UnityEngine.Object.FindObjectsOfType<BotZone>()
+            var zonesByName = AllBotZones()
                 .Where(z => z.SpawnPointMarkers != null && z.SpawnPointMarkers.Count > 0)
                 .GroupBy(z => z.name).ToDictionary(g => g.Key, g => g.First());
 
