@@ -12,7 +12,7 @@
     <RepositoryUrl>$(ModSourceUrl)</RepositoryUrl>
     <SPTPath Condition="'$(SPTPath)' == ''">D:\SPT41Dev</SPTPath>
     <SPTServerPath Condition="'$(SPTServerPath)' == ''">$(SPTPath)\SPT_Runtime</SPTServerPath>
-    <FikaPath Condition="'$(FikaPath)' == ''">D:\SPT41DevFika</FikaPath>
+    <FikaPath Condition="'$(FikaPath)' == ''">$(SPTPath)</FikaPath>
     <DeployToGame Condition="'$(DeployToGame)' == ''">false</DeployToGame>
   </PropertyGroup>
 </Project>
