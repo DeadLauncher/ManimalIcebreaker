@@ -36,15 +36,6 @@
           "counter": {
             "conditions": [
               {
-                "conditionType": "InZone",
-                "dynamicLocale": false,
-                "id": "81e4fdfe0a4486aab77835fa",
-                "zoneIds": [
-                  "boreas_camp_resort",
-                  "q14_10_kill_ice"
-                ]
-              },
-              {
                 "bodyPart": [],
                 "compareMethod": ">=",
                 "conditionType": "Kills",
